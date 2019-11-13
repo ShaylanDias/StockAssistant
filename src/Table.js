@@ -16,42 +16,11 @@ export default class Table extends React.Component {
         header: this.props.header,
         name: this.props.name
       };
+      this.generateRow = generateRow
+      this.generateHeader = generateHeader
+      this.generateRows = generateRows
   }
 
-  generateRow(row) {
-      return (
-        <>
-        <tr>
-        {row.map((value) => {
-            return <td>value</td>
-        })}
-        </tr>
-        </>
-      )
-  }
-
-  generateHeader() {
-    return (
-      <>
-      <tr>
-      {this.state.header.map((value) => {
-          return <th>value</th>
-      })}
-      </tr>
-      </>
-    )
-}
-
-  generateRows() {
-      return (
-        <>
-        {
-        this.state.rows.map((value) => {   
-            return(generateRow(value))    
-        })}
-        </>
-      )
-  }
 
   render() {
     return(
@@ -68,4 +37,40 @@ export default class Table extends React.Component {
       </>
     )
   }
+}
+
+
+var generateRow = function(row) {
+    return (
+    <>
+    <tr>
+    {row.map((value) => {
+        return <td>value</td>
+    })}
+    </tr>
+    </>
+    )
+}
+
+var generateRows = function() {
+    return (
+        <>
+        {
+        this.state.rows.map((value) => {   
+            return(generateRow(value))    
+        })}
+        </>
+    )
+}
+
+var generateHeader = function() {
+    return (
+      <>
+      <tr>
+      {this.state.header.map((value) => {
+          return <th>value</th>
+      })}
+      </tr>
+      </>
+    )
 }

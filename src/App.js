@@ -1,13 +1,15 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import './Table.js'
+import Table from './Table.js'
+import Navigation from './Navigation.js'
+import Main from './Main.js'
 
 function App() {
   return (
     <>
-    <Navigation/>
-    <Main/>
+    {/* <Navigation/>
+    <Main/> */}
     <Table/>
     </>
   );
