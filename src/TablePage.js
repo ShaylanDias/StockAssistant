@@ -34,8 +34,8 @@ export default class TablePage extends React.Component {
   generateTable(name, header, rows) {
     return (
       <>
-      <body >
-      <h2>{name}</h2>
+      <body style = {tableStyle}>
+      <h2 style={titleStyle}>{name}</h2>
       <table class="ui fixed celled table">
       <thead>
           {this.generateHeader(header)}  
@@ -77,7 +77,7 @@ export default class TablePage extends React.Component {
   generateHeader(header) {
     return (
       <>
-      <tr class="ui inverted red table">
+      <tr class="ui inverted blue table">
       {header.map((value) => {
           return <th>{value}</th>
       })}
@@ -95,6 +95,17 @@ class Table {
       this.rows = rows
     }
 }
+
+var titleStyle = {
+  color: '#1b71b1',
+  'text-align': 'center'
+};
+
+var tableStyle = {
+  'margin-top': '30px',
+  'margin-left': '100px',
+  'margin-right': '100px'
+};
 
 // function generateTable(name, header, rows) {
 //   return (
