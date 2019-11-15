@@ -6,9 +6,9 @@ export default class TablePage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      tables: [new Table("Top Gainers", ['fuck', 'JavaScript'], [['test1', 'hi'], ['test2', 'he;llo']]),
-      new Table("Top Losers", ['test', 'second'], [['test1', 'hi'], ['test2', 'he;llo']]),
-      new Table("Highest Volume Traded", ['test', 'second'], [['test1', 'hi'], ['test2', 'he;llo']])
+      tables: [new Table("Top Gainers", ['fuck', 'JavaScript', '', '', ''], [['test1', 'hi'], ['test2', 'he;llo']]),
+      new Table("Top Losers", ['test', 'second', '', '', ''], [['test1', 'hi'], ['test2', 'he;llo']]),
+      new Table("Highest Volume Traded", ['test', 'second', '', '', ''], [['test1', 'hi'], ['test2', 'he;llo']])
 
     ]
     }
@@ -16,6 +16,13 @@ export default class TablePage extends React.Component {
     // this.generateHeader = generateHeader
     // this.generateRows = generateRows
     // this.generateTable = generateTable
+  }
+
+  componentDidMount() {
+    fetch('apidojo-yahoo-finance-v1.p.rapidapi.com', {
+      "x-rapidapi-key": '179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9'
+    }).then(response => response.json())
+    .then(data => alert(data))
   }
 
   render() {
@@ -36,7 +43,7 @@ export default class TablePage extends React.Component {
       <>
       <body style = {tableStyle}>
       <h2 style={titleStyle}>{name}</h2>
-      <table class="ui fixed celled table">
+      <table class="ui fixed five column celled table">
       <thead>
           {this.generateHeader(header)}  
       </thead>
@@ -56,7 +63,7 @@ export default class TablePage extends React.Component {
     <tr>
     {
     row.map((value) => {
-        return <td>{value}</td>
+        return <td class = "center aligned">{value}</td>
     })}
     </tr>
     </>
@@ -77,7 +84,7 @@ export default class TablePage extends React.Component {
   generateHeader(header) {
     return (
       <>
-      <tr class="ui inverted blue table">
+      <tr class="ui inverted blue center aligned table">
       {header.map((value) => {
           return <th>{value}</th>
       })}
@@ -106,54 +113,3 @@ var tableStyle = {
   'margin-left': '100px',
   'margin-right': '100px'
 };
-
-// function generateTable(name, header, rows) {
-//   return (
-//     <>
-//     <h2>{name}</h2>
-//     <table class="ui celled table">
-//     <thead>
-//         {this.generateHeader(header)}  
-//     </thead>
-//     <tbody>
-//         {this.generateRows(rows)}
-//     </tbody>
-//     </table>
-//     </>
-//   )
-// }
-
-// function generateRow(row) {
-//   return (
-//   <>
-//   <tr>
-//   {row.map((value) => {
-//       return <td>{value}</td>
-//   })}
-//   </tr>
-//   </>
-//   )
-// }
-
-// function generateRows(rows) {
-//   return (
-//       <>
-//       {
-//       rows.map((value) => {   
-//           return(<>{generateRow(value)}</>)    
-//       })}
-//       </>
-//   )
-// }
-
-// function generateHeader(header) {
-//   return (
-//     <>
-//     <tr>
-//     {header.map((value) => {
-//         return <th>{value}</th>
-//     })}
-//     </tr>
-//     </>
-//   )
-// }
