@@ -37,7 +37,33 @@ export default class TablePage extends React.Component {
     new Table("Highest Volume Traded", tableHeader, [[]])
    ]
 
-    fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-movers?region=US&lang=en", {
+   let page = this
+
+   let setData = async function(symbol, table, ind, tables) {
+    await fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-financials?symbol=" + symbol, {
+      "method": "GET",
+      "headers": {
+        "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
+        "x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
+      }
+    })
+    .then(response => {
+      let result = response.json().then(data => {
+        console.log(data)
+        table.rows[ind] = [symbol, data["price"]["shortName"], data["price"]["regularMarketPrice"]["raw"],
+                data["price"]["regularMarketChange"]["raw"], data["price"]["regularMarketChangePercent"]["fmt"]]
+        page.setState({
+          tables: tables
+        })
+      })
+    })
+    .catch(err => {
+      console.log(err);
+      alert("error: " + symbol + ", " + err)
+    });
+  }
+
+  fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-movers?region=US&lang=en", {
         "method": "GET",
         "headers": {
             "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
@@ -45,7 +71,6 @@ export default class TablePage extends React.Component {
         }
     })
     .then(response => {
-        console.log(response);
         let result = response.json().then(data => {
           let parse = function(ind) {
             let res = data["finance"]["result"][ind]["quotes"]
@@ -60,38 +85,15 @@ export default class TablePage extends React.Component {
           
           for (let i = 0, len = tables.length; i < len; i++) {
             parse(i)
+            var promiseArray = []
             for (let j = 0, len = tables[i].rows.length; j < len; j++) {
-              tables[i].rows[j] = this.grabData(tables[i].rows[j][0])
+              promiseArray.push(setData(tables[i].rows[j][0], tables[i], j, tables))
             }
-            console.log(tables[i].rows)
-            this.setState({
-              tables: tables
-            })
           }
         })
     })
     .catch(err => {
         console.log(err);
-    });
-  }
-  
-  grabData(symbol) {
-    fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-financials?symbol=" + symbol, {
-      "method": "GET",
-      "headers": {
-        "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
-        "x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
-      }
-    })
-    .then(response => {
-      let result = response.json().then(data => {
-        console.log(data)
-        return [symbol, data["price"]["shortName"], data["price"]["regularMarketPrice"]["raw"],
-                data["price"]["regularMarketChange"]["raw"], data["price"]["regularMarketChangePercent"]["fmt"]]
-      })
-    })
-    .catch(err => {
-      console.log(err);
     });
   }
 
@@ -118,7 +120,6 @@ export default class TablePage extends React.Component {
     return (
     <>
     <tr>
-    {console.log((typeof row) + ", " + row)}
     {
       row.map((value) => {
         return <td class = "center aligned">{value}</td>
