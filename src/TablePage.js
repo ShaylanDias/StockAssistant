@@ -6,9 +6,9 @@ export default class TablePage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      tables: [new Table("Top Gainers", tableHeader, [['test1', 'hi'], ['test2', 'he;llo']]),
-      new Table("Top Losers", tableHeader, [['test1', 'hi'], ['test2', 'he;llo']]),
-      new Table("Highest Volume Traded", tableHeader, [['test1', 'hi'], ['test2', 'he;llo']])
+      tables: [new Table("Top Gainers", tableHeader, emptyTable),
+      new Table("Top Losers", tableHeader, emptyTable),
+      new Table("Highest Volume Traded", tableHeader, emptyTable)
     ]
     }
   }
@@ -32,9 +32,9 @@ export default class TablePage extends React.Component {
 
   makeAPICall() {
 
-    var tables = [new Table("Top Gainers", tableHeader, [[]]),
-    new Table("Top Losers", tableHeader, [[]]),
-    new Table("Highest Volume Traded", tableHeader, [[]])
+    var tables = [new Table("Top Gainers", tableHeader, emptyTable),
+    new Table("Top Losers", tableHeader, emptyTable),
+    new Table("Highest Volume Traded", tableHeader, emptyTable)
    ]
 
    let page = this
@@ -49,7 +49,7 @@ export default class TablePage extends React.Component {
     })
     .then(response => {
       let result = response.json().then(data => {
-        console.log(data)
+      console.log(data)
         table.rows[ind] = [symbol, data["price"]["shortName"], data["price"]["regularMarketPrice"]["raw"],
                 data["price"]["regularMarketChange"]["raw"], data["price"]["regularMarketChangePercent"]["fmt"]]
         page.setState({
@@ -60,6 +60,7 @@ export default class TablePage extends React.Component {
     .catch(err => {
       console.log(err);
       alert("error: " + symbol + ", " + err)
+      this(symbol, table, ind, tables)
     });
   }
 
@@ -85,9 +86,8 @@ export default class TablePage extends React.Component {
           
           for (let i = 0, len = tables.length; i < len; i++) {
             parse(i)
-            var promiseArray = []
             for (let j = 0, len = tables[i].rows.length; j < len; j++) {
-              promiseArray.push(setData(tables[i].rows[j][0], tables[i], j, tables))
+              setData(tables[i].rows[j][0], tables[i], j, tables)
             }
           }
         })
@@ -122,7 +122,7 @@ export default class TablePage extends React.Component {
     <tr>
     {
       row.map((value) => {
-        return <td class = "center aligned">{value}</td>
+        return <td class = "center aligned" style = {bodyTextStyle}>{value}</td>
     })}
     </tr>
     </>
@@ -143,7 +143,7 @@ export default class TablePage extends React.Component {
   generateHeader(header) {
     return (
       <>
-      <tr class="ui inverted blue center aligned table">
+      <tr class="ui inverted blue center aligned table" style = {{'font-weight': 'bold'}}>
       {header.map((value) => {
           return <th>{value}</th>
       })}
@@ -163,11 +163,17 @@ class Table {
 }
 
 const tableHeader = ["Symbol", "Name", "Price", "Change", "% Change"]
-
+const emptyRow = ['-', '-', '-', '-', '-']
+const emptyTable = [emptyRow, emptyRow, emptyRow, emptyRow, emptyRow]
 const titleStyle = {
   color: '#1b71b1',
   'text-align': 'center'
 };
+
+const bodyTextStyle = {
+  color: '#1b71b1',
+  'font-weight': 'bold'
+}
 
 const tableStyle = {
   'margin-top': '30px',
