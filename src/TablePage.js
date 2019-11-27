@@ -1,17 +1,25 @@
 import React from 'react';
 import Link from 'react-router-dom';
-// import Table from './Table.js'
+import Table from './Table.js'
+import Data from './Data.js'
+import {emptyTable, emptyRow} from './Data.js'
+
+
+const tableHeader = ["Symbol", "Name", "Price", "Change", "% Change"]
 
 export default class TablePage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      tables: [new Table("Top Gainers", tableHeader, emptyTable),
-      new Table("Top Losers", tableHeader, emptyTable),
-      new Table("Highest Volume Traded", tableHeader, emptyTable)
-    ]
+      tables: [
+        <Table data = {this.data[0]}/>,
+        <Table data = {this.data[1]}/>,
+        <Table data = {this.data[2]}/>
+      ]
     }
   }
+
+  data = [new Data("Top Gainers", tableHeader, emptyTable), new Data("Top Losers", tableHeader, emptyTable), new Data("Highest Volume Traded", tableHeader, emptyTable)]
 
   componentDidMount() {
     this.makeAPICall()
@@ -20,26 +28,21 @@ export default class TablePage extends React.Component {
   render() {
     return(
       <>
-        {this.state.tables.map(
-          (table) => {
-            return (<>{this.generateTable(table.name, table.header, table.rows)}</>)
-          }
-
-        )}
+        {this.state.tables}
       </>
     )
   }
 
   makeAPICall() {
 
-    var tables = [new Table("Top Gainers", tableHeader, emptyTable),
-    new Table("Top Losers", tableHeader, emptyTable),
-    new Table("Highest Volume Traded", tableHeader, emptyTable)
+    var tables = [new Data("Top ", tableHeader, emptyTable),
+    new Data("Top ", tableHeader, emptyTable),
+    new Data("Highest  Traded", tableHeader, emptyTable)
    ]
 
    let page = this
 
-   let setData = async function(symbol, table, ind, tables) {
+   let setData = async function(symbol, table, ind) {
     await fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-financials?symbol=" + symbol, {
       "method": "GET",
       "headers": {
@@ -53,14 +56,22 @@ export default class TablePage extends React.Component {
         table.rows[ind] = [symbol, data["price"]["shortName"], data["price"]["regularMarketPrice"]["raw"],
                 data["price"]["regularMarketChange"]["raw"], data["price"]["regularMarketChangePercent"]["fmt"]]
         page.setState({
-          tables: tables
+          tables: [
+            <Table data = {page.data[0]}/>,
+            <Table data = {page.data[1]}/>,
+            <Table data = {page.data[2]}/>
+          ]
         })
+        // for (let i = 0; i < page.state.tables.length; i++) {
+        //   // console.log(page.state.tables[i].props.)
+        //   page.state.tables[i].changeTable(tables[i])
+        // }
       })
     })
     .catch(err => {
       console.log(err);
       alert("error: " + symbol + ", " + err)
-      this(symbol, table, ind, tables)
+      this(symbol, table, ind)
     });
   }
 
@@ -87,7 +98,7 @@ export default class TablePage extends React.Component {
           for (let i = 0, len = tables.length; i < len; i++) {
             parse(i)
             for (let j = 0, len = tables[i].rows.length; j < len; j++) {
-              setData(tables[i].rows[j][0], tables[i], j, tables)
+              setData(tables[i].rows[j][0], tables[i], j)
             }
           }
         })
@@ -97,86 +108,4 @@ export default class TablePage extends React.Component {
     });
   }
 
-  generateTable(name, header, rows) {
-    return (
-      <>
-      <body style = {tableStyle}>
-      <h2 style={titleStyle}>{name}</h2>
-      <table class="ui fixed five column celled table">
-      <thead>
-          {this.generateHeader(header)}  
-      </thead>
-      <tbody>
-          {this.generateRows(rows)}
-      </tbody>
-      </table>
-      </body>
-      </>
-    )
-  }
-
-
-  generateRow(row) {
-    return (
-    <>
-    <tr>
-    {
-      row.map((value) => {
-        return <td class = "center aligned" style = {bodyTextStyle}>{value}</td>
-    })}
-    </tr>
-    </>
-    )
-  }
-
-  generateRows(rows) {
-    return (
-        <>
-        {
-        rows.map((value) => {   
-            return(<>{this.generateRow(value)}</>)    
-        })}
-        </>
-    )
-  }
-  
-  generateHeader(header) {
-    return (
-      <>
-      <tr class="ui inverted blue center aligned table" style = {{'font-weight': 'bold'}}>
-      {header.map((value) => {
-          return <th>{value}</th>
-      })}
-      </tr>
-      </>
-    )
-  }
 }
-
-
-class Table {
-    constructor(name, header, rows) {
-      this.name = name
-      this.header = header
-      this.rows = rows
-    }
-}
-
-const tableHeader = ["Symbol", "Name", "Price", "Change", "% Change"]
-const emptyRow = ['-', '-', '-', '-', '-']
-const emptyTable = [emptyRow, emptyRow, emptyRow, emptyRow, emptyRow]
-const titleStyle = {
-  color: '#1b71b1',
-  'text-align': 'center'
-};
-
-const bodyTextStyle = {
-  color: '#1b71b1',
-  'font-weight': 'bold'
-}
-
-const tableStyle = {
-  'margin-top': '30px',
-  'margin-left': '100px',
-  'margin-right': '100px'
-};
