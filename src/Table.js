@@ -6,7 +6,7 @@ export default class Table extends React.Component {
 
     constructor(props) {
         super(props);
-        console.log(props)
+        // console.log(props)
         this.changeTable = this.changeTable.bind(this);
         this.state = {
           data: props.data//new Data("Top Gainers", tableHeader, emptyTable)
@@ -23,7 +23,9 @@ export default class Table extends React.Component {
       render() {
         return(
           <>
-            <>{this.generateTable(this.state.data.name, this.state.data.header, this.state.data.rows)}</>
+            <>
+            {console.log("rendered")}
+            {this.generateTable(this.state.data.name, this.state.data.header, this.state.data.rows)}</>
           </>
         )
       }
@@ -96,7 +98,8 @@ const bodyTextStyle = {
   }
   
   const tableStyle = {
-    'margin-top': '30px',
-    'margin-left': '100px',
-    'margin-right': '100px'
+    'marginTop': '30px',
+    'marginLeft': '100px',
+    'marginRight': '100px',
+    'marginBottom': '30px'
   };

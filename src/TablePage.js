@@ -12,9 +12,9 @@ export default class TablePage extends React.Component {
     super(props);
     this.state = {
       tables: [
-        <Table data = {this.data[0]}/>,
-        <Table data = {this.data[1]}/>,
-        <Table data = {this.data[2]}/>
+        <Table key={0} data = {this.data[0]}/>,
+        <Table key={1} data = {this.data[1]}/>,
+        <Table key={2} data = {this.data[2]}/>
       ]
     }
   }
@@ -34,15 +34,10 @@ export default class TablePage extends React.Component {
   }
 
   makeAPICall() {
-
-    var tables = [new Data("Top ", tableHeader, emptyTable),
-    new Data("Top ", tableHeader, emptyTable),
-    new Data("Highest  Traded", tableHeader, emptyTable)
-   ]
-
    let page = this
 
    let setData = async function(symbol, table, ind) {
+    console.log("SET DATA CALLED")
     await fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/v2/get-financials?symbol=" + symbol, {
       "method": "GET",
       "headers": {
@@ -52,24 +47,20 @@ export default class TablePage extends React.Component {
     })
     .then(response => {
       let result = response.json().then(data => {
-      console.log(data)
         table.rows[ind] = [symbol, data["price"]["shortName"], data["price"]["regularMarketPrice"]["raw"],
                 data["price"]["regularMarketChange"]["raw"], data["price"]["regularMarketChangePercent"]["fmt"]]
+        console.log(page.data)
         page.setState({
           tables: [
-            <Table data = {page.data[0]}/>,
-            <Table data = {page.data[1]}/>,
-            <Table data = {page.data[2]}/>
+            <Table key={0} data = {page.data[0]}/>,
+            <Table key={1} data = {page.data[1]}/>,
+            <Table key={2} data = {page.data[2]}/>
           ]
         })
-        // for (let i = 0; i < page.state.tables.length; i++) {
-        //   // console.log(page.state.tables[i].props.)
-        //   page.state.tables[i].changeTable(tables[i])
-        // }
       })
     })
     .catch(err => {
-      console.log(err);
+      console.log("Error on stock data call", err);
       alert("error: " + symbol + ", " + err)
       this(symbol, table, ind)
     });
@@ -83,7 +74,7 @@ export default class TablePage extends React.Component {
         }
     })
     .then(response => {
-        let result = response.json().then(data => {
+        response.json().then(data => {
           let parse = function(ind) {
             let res = data["finance"]["result"][ind]["quotes"]
             var rows = []
@@ -92,13 +83,13 @@ export default class TablePage extends React.Component {
                 let row_data = res[i]
                 rows.push([row_data["symbol"]])
             }
-            tables[ind].rows = rows
+            page.data[ind].rows = rows
           }
           
-          for (let i = 0, len = tables.length; i < len; i++) {
+          for (let i = 0, len = page.data.length; i < len; i++) {
             parse(i)
-            for (let j = 0, len = tables[i].rows.length; j < len; j++) {
-              setData(tables[i].rows[j][0], tables[i], j)
+            for (let j = 0, len = page.data[i].rows.length; j < len; j++) {
+              setData(page.data[i].rows[j][0], page.data[i], j)
             }
           }
         })
