@@ -5,50 +5,71 @@ import {emptyRow} from './Data.js'
 
 
 const tableHeader = ["Symbol", "Name", "Price", "Change", "% Change"]
+var page
 
-export default class TablePage extends React.Component {
+export default class Watchlist extends React.Component {
 
-    data = new Data("Watchlist", tableHeader, [[<div class="ui fluid input"><input onChange={this.handleInput} type="text" placeholder="Symbol..."/></div>, '', '', '', '']])
-    // x = [<div style={inputSpacing} class="ui fluid input"><input type="text" placeholder="Symbol..."/></div>, '', '', '', '']
+    inputBox = <div class="ui fluid input"><input onKeyPress={this.handleInput} type="text" placeholder="Symbol..."/></div>
+    inputRow = [this.inputBox, '', '', '', '']
+    data = new Data("Watchlist", tableHeader, [this.inputRow])
 
     constructor(props) {
-        super(props);        
+        super(props);    
+        this.grabStockData()    
         this.state = {
           table: <Table data = {this.data}/>
         }
+        page = this
       }
 
-      componentDidMount() {
-        let symbols = document.getElementById("symbols")
-        fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-quotes?region=US&lang=en&symbols=" + symbols, {
-                "method": "GET",
-                "headers": {
-                  "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
-                  "x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
-                }
-              })
-              .then(response => {
-                console.log(response);
-                response.json().then(data => {
-                  console.log(data)
-                //   for(let i = 0, len = this.data[i].rows.length; j < len; j++) {
-                //     let relData = data["quoteResponse"]["result"][j]
-                //     this.data[i].rows[j] = [this.data[i].rows[j][0], relData["shortName"], roundToTwo(relData["regularMarketPrice"]),
-                //     roundToTwo(relData["regularMarketChange"]), roundToTwo(relData["regularMarketChangePercent"])]
-                //   }
-                  
-                //   this.setState({
-                //     tables: [
-                //       <Table key={0} data = {this.data[0]}/>,
-                //       <Table key={1} data = {this.data[1]}/>,
-                //       <Table key={2} data = {this.data[2]}/>
-                //     ]
-                //   })
-                }) 
-              })
-              .catch(err => {
-                console.log(err);
-              });
+    //   componentDidMount() {
+    //     this.grabStockData()
+    //   }
+
+      grabStockData() {
+        let symbols = localStorage.getItem("symbols")
+        if (symbols) {
+            let symbolArr = this.getSymbols(symbols)
+            fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-quotes?region=US&lang=en&symbols=" + symbols, {
+                    "method": "GET",
+                    "headers": {
+                    "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
+                    "x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
+                    }
+                })
+                .then(response => {
+                    console.log(response);
+                    response.json().then(data => {
+                        console.log(data)
+                        let newRows = []
+                        for(let i = 0, len = symbolArr.length; i < len; i++) {
+                            let relData = data["quoteResponse"]["result"][i]
+                            newRows.push([symbolArr[i], relData["shortName"], roundToTwo(relData["regularMarketPrice"]),
+                            roundToTwo(relData["regularMarketChange"]), roundToTwo(relData["regularMarketChangePercent"])])
+                        }
+                        newRows.push([page.inputBox, '', '', '', ''])
+                        console.log(newRows)
+                        page.data = new Data("Watchlist", tableHeader, [this.inputRow])
+                        page.setState({
+                            table: <Table data = {page.data}/>
+                        })
+                    }) 
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+      }
+
+      getSymbols(symbolString) {
+        let symbols = []
+        var ind = symbolString.indexOf(",")
+        while(ind !== -1) {
+            symbols.push(symbolString.slice(0, ind))
+            symbolString = symbolString.slice(ind + 1, symbolString.length)
+            ind = symbolString.indexOf(",")
+        }
+        return symbols
       }
 
       render() {
@@ -60,9 +81,52 @@ export default class TablePage extends React.Component {
       }
 
       handleInput(event) {
-        let entered = event.target.value
-        if (entered[entered.length -1] === '\n') {
-
+        let key = event.key
+        let value = event.target.value.toUpperCase()
+        if (key === 'Enter') {
+            console.log(key, value)
+            if(!getSymbols(localStorage.getItem("symbols")).includes(value)) {
+                fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/get-detail?region=US&lang=en&symbol=" + value, {
+                "method": "GET",
+                "headers": {
+                    "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
+                    "x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
+                    }
+                })
+                .then(response => {
+                    response.json().then(data => {
+                        console.log(data)
+                        let relData = data["price"]
+                        console.log(relData)
+                        let newRow = [value, relData["shortName"], relData["regularMarketPrice"]["fmt"],
+                        relData["regularMarketChange"]["fmt"], relData["regularMarketChangePercent"]["fmt"]]
+                        page.data.rows.splice(page.data.rows.length-1, 0, newRow)
+                        console.log(page.data)
+                        page.setState({
+                            table: <Table data = {page.data}/>,
+                        })
+                        if(!localStorage.getItem("symbols")) {
+                            console.log("SET")
+                            localStorage.setItem("symbols", value + ",")
+                        }
+                        else {
+                            localStorage.setItem("symbols", localStorage.getItem("symbols") + value + ",")
+                        }
+                        console.log(localStorage.getItem("symbols"))
+                    }) 
+                    .catch(err => {
+                        console.log(err);
+                        alert("Invalid Stock Symbol")
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+            }
+            else {
+                alert("Ticker Already Added")
+            }
+            event.target.value = ""
         }
       };
 
@@ -72,3 +136,17 @@ export default class TablePage extends React.Component {
 function roundToTwo(num) {
     return parseFloat(Math.round(num * 100) / 100).toFixed(2);
   }
+
+function getSymbols(symbolString) {
+    if(!symbolString) {
+        return []
+    }
+    let symbols = []
+    var ind = symbolString.indexOf(",")
+    while(ind !== -1) {
+        symbols.push(symbolString.slice(0, ind))
+        symbolString = symbolString.slice(ind + 1, symbolString.length)
+        ind = symbolString.indexOf(",")
+    }
+    return symbols
+}
