@@ -4,6 +4,7 @@ import './App.css';
 import Main from './Main.js'
 import Navigation from './Navigation.js'
 import TablePage from './TablePage'
+import Watchlist from './Watchlist'
 
 
 function App() {
@@ -11,7 +12,8 @@ function App() {
     <div>
     	{/* <Navigation/>
     	<Main/> */}
-      <TablePage/>
+      {/* <TablePage/> */}
+      <Watchlist/>
     </div>
   );
 }
