@@ -14,17 +14,16 @@ export default class Watchlist extends React.Component {
     data = new Data("Watchlist", tableHeader, [this.inputRow])
 
     constructor(props) {
-        super(props);    
-        this.grabStockData()    
+        super(props);        
         this.state = {
           table: <Table data = {this.data}/>
         }
         page = this
       }
 
-    //   componentDidMount() {
-    //     this.grabStockData()
-    //   }
+      componentDidMount() {
+        this.grabStockData()
+      }
 
       grabStockData() {
         let symbols = localStorage.getItem("symbols")
@@ -49,10 +48,13 @@ export default class Watchlist extends React.Component {
                         }
                         newRows.push([page.inputBox, '', '', '', ''])
                         console.log(newRows)
-                        page.data = new Data("Watchlist", tableHeader, [this.inputRow])
-                        page.setState({
-                            table: <Table data = {page.data}/>
+                        console.log("SET STATE CALLED")
+                        this.data = new Data("Watchlist", tableHeader, newRows)
+                        console.log(this)
+                        this.setState({
+                            table: <Table data = {this.data}/>
                         })
+                        console.log(this)
                     }) 
                 })
                 .catch(err => {
@@ -100,8 +102,11 @@ export default class Watchlist extends React.Component {
                         console.log(relData)
                         let newRow = [value, relData["shortName"], relData["regularMarketPrice"]["fmt"],
                         relData["regularMarketChange"]["fmt"], relData["regularMarketChangePercent"]["fmt"]]
-                        page.data.rows.splice(page.data.rows.length-1, 0, newRow)
-                        console.log(page.data)
+                        console.log(page.data.rows)
+                        page.data.rows.pop()
+                        page.data.rows.push(newRow)
+                        page.data.rows.push(page.inputRow)
+                        console.log(page.data.rows)
                         page.setState({
                             table: <Table data = {page.data}/>,
                         })

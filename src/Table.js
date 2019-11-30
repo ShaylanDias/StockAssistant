@@ -6,10 +6,10 @@ export default class Table extends React.Component {
 
     constructor(props) {
         super(props);
-        // console.log(props)
+        console.log(props)
         this.changeTable = this.changeTable.bind(this);
         this.state = {
-          data: props.data//new Data("Top Gainers", tableHeader, emptyTable)
+          data: props.data
         }
         console.log(this.state.data)
       }
