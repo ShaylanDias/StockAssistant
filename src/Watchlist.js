@@ -11,12 +11,12 @@ export default class Watchlist extends React.Component {
 
     inputBox = <div class="ui fluid input"><input onKeyPress={this.handleInput} type="text" placeholder="Symbol..."/></div>
     inputRow = [this.inputBox, '', '', '', '']
-    data = new Data("Watchlist", tableHeader, [this.inputRow])
+    // data = new Data("Watchlist", tableHeader, [this.inputRow])
 
     constructor(props) {
         super(props);        
         this.state = {
-          table: <Table data = {this.data}/>
+          data: new Data("Watchlist", tableHeader, [this.inputRow])
         }
         page = this
       }
@@ -24,6 +24,16 @@ export default class Watchlist extends React.Component {
       componentDidMount() {
         this.grabStockData()
       }
+
+    //   componentDidUpdate(prevProps, prevState) {
+    //     // only update chart if the data has changed
+    //     // if (prevState.table !== this.props.table) {
+    //     //   this.chart = 
+    //     // }
+    //     if (prevState.data !== this.state.data) {
+    //         this.render()
+    //     }
+    //   }
 
       grabStockData() {
         let symbols = localStorage.getItem("symbols")
@@ -49,10 +59,10 @@ export default class Watchlist extends React.Component {
                         newRows.push([page.inputBox, '', '', '', ''])
                         console.log(newRows)
                         console.log("SET STATE CALLED")
-                        this.data = new Data("Watchlist", tableHeader, newRows)
+                        let newData = new Data("Watchlist", tableHeader, newRows)
                         console.log(this)
                         this.setState({
-                            table: <Table data = {this.data}/>
+                            data: newData
                         })
                         console.log(this)
                     }) 
@@ -77,7 +87,9 @@ export default class Watchlist extends React.Component {
       render() {
         return(
             <>
-            {this.state.table}
+                {console.log("Watchlist Rendered")}
+                {console.log("Watchlist data", this.state.data)}
+                <Table data = {this.state.data}/>
             </>
           )
       }
@@ -102,13 +114,15 @@ export default class Watchlist extends React.Component {
                         console.log(relData)
                         let newRow = [value, relData["shortName"], relData["regularMarketPrice"]["fmt"],
                         relData["regularMarketChange"]["fmt"], relData["regularMarketChangePercent"]["fmt"]]
-                        console.log(page.data.rows)
-                        page.data.rows.pop()
-                        page.data.rows.push(newRow)
-                        page.data.rows.push(page.inputRow)
-                        console.log(page.data.rows)
+                        var rows = page.state.data.rows
+                        console.log(rows)
+                        rows.pop()
+                        rows.push(newRow)
+                        rows.push(page.inputRow)
+                        console.log(rows)
+                        let newData = new Data("Watchlist", tableHeader, rows)
                         page.setState({
-                            table: <Table data = {page.data}/>,
+                            data: newData
                         })
                         if(!localStorage.getItem("symbols")) {
                             console.log("SET")

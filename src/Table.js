@@ -12,6 +12,7 @@ export default class Table extends React.Component {
           data: props.data
         }
         console.log(this.state.data)
+        console.log("New table made")
       }
 
       changeTable(data) {
@@ -20,11 +21,20 @@ export default class Table extends React.Component {
           })
       }
 
+      componentDidUpdate(prevProps, prevState) {
+        if (prevProps.data !== this.state.data) {
+            this.setState({
+              data: prevProps.data
+            })
+        }
+      }
+
       render() {
         return(
           <>
             <>
-            {console.log("rendered")}
+            {console.log("table rendered")}
+            {console.log(this.state.data)}
             {this.generateTable(this.state.data.name, this.state.data.header, this.state.data.rows)}</>
           </>
         )
