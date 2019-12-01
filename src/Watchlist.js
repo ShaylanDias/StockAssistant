@@ -9,7 +9,7 @@ var page
 
 export default class Watchlist extends React.Component {
 
-    inputBox = <div class="ui transparent fluid input"><input onKeyPress={this.handleInput} type="text" placeholder="Symbol..."/></div>
+    inputBox = <div class="ui transparent fluid input"><input onKeyPress={this.handleInput} type="text" placeholder="Add Ticker..."/></div>
     inputRow = [this.inputBox, <button onClick = {this.clearStorage} class="ui basic blue fluid button">Clear List</button>, '', '', '']
     // data = new Data("Watchlist", tableHeader, [this.inputRow])
 
