@@ -9,8 +9,8 @@ var page
 
 export default class Watchlist extends React.Component {
 
-    inputBox = <div class="ui fluid input"><input onKeyPress={this.handleInput} type="text" placeholder="Symbol..."/></div>
-    inputRow = [this.inputBox, '', '', '', '']
+    inputBox = <div class="ui transparent fluid input"><input onKeyPress={this.handleInput} type="text" placeholder="Symbol..."/></div>
+    inputRow = [this.inputBox, <button onClick = {this.clearStorage} class="ui basic blue fluid button">Clear List</button>, '', '', '']
     // data = new Data("Watchlist", tableHeader, [this.inputRow])
 
     constructor(props) {
@@ -24,16 +24,6 @@ export default class Watchlist extends React.Component {
       componentDidMount() {
         this.grabStockData()
       }
-
-    //   componentDidUpdate(prevProps, prevState) {
-    //     // only update chart if the data has changed
-    //     // if (prevState.table !== this.props.table) {
-    //     //   this.chart = 
-    //     // }
-    //     if (prevState.data !== this.state.data) {
-    //         this.render()
-    //     }
-    //   }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevState.data !== this.state.data) {
@@ -64,7 +54,7 @@ export default class Watchlist extends React.Component {
                             newRows.push([symbolArr[i], relData["shortName"], roundToTwo(relData["regularMarketPrice"]),
                             roundToTwo(relData["regularMarketChange"]), roundToTwo(relData["regularMarketChangePercent"])])
                         }
-                        newRows.push([page.inputBox, '', '', '', ''])
+                        newRows.push(page.inputRow)
                         console.log(newRows)
                         console.log("SET STATE CALLED")
                         let newData = new Data("Watchlist", tableHeader, newRows)
@@ -156,6 +146,13 @@ export default class Watchlist extends React.Component {
             event.target.value = ""
         }
       };
+
+      clearStorage() {
+        localStorage.setItem("symbols", "")
+          page.setState({
+              data: new Data("Watchlist", tableHeader, [page.inputRow])
+          })
+      }
 
 }
 
