@@ -35,6 +35,14 @@ export default class Watchlist extends React.Component {
     //     }
     //   }
 
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.data !== this.state.data) {
+            this.setState({
+              data: this.state.data
+            })
+        }
+      }
+
       grabStockData() {
         let symbols = localStorage.getItem("symbols")
         if (symbols) {
