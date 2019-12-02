@@ -47,9 +47,15 @@ export default class Game extends React.Component {
     })
   }
 
-  // api call, update balance
+  // after submitting a stock name
   handleInput() {
-
+    var stockName = this.state.stock.toUpperCase();
+    // beginning of the month
+    var startTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth(), 1).valueOf();
+    // beginning of the next month
+    var endTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth() % 12 + 1, 1).valueOf();
+    // endTime open - startTime open
+    // update balance
     this.setState({
       balance: 1000,
       stock: "",
