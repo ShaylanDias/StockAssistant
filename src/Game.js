@@ -55,6 +55,19 @@ export default class Game extends React.Component {
     // beginning of the next month
     var endTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth() % 12 + 1, 1).valueOf();
     // endTime open - startTime open
+    fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/get-histories?region=US&lang=en&symbol=" + stockName + "&from=" + startTime + "&to=" + endTime + "&events=div&interval=1d", {
+	"method": "GET",
+	"headers": {
+		"x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
+		"x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
+	}
+})
+.then(response => {
+	console.log(response);
+})
+.catch(err => {
+	console.log(err);
+});
     // update balance
     this.setState({
       balance: 1000,
