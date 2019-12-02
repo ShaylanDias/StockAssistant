@@ -51,30 +51,38 @@ export default class Game extends React.Component {
   handleInput() {
     var stockName = this.state.stock.toUpperCase();
     // beginning of the month
-    var startTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth(), 1).valueOf();
+    var startTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth(), 1).valueOf() / 1000;
     // beginning of the next month
-    var endTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth() % 12 + 1, 1).valueOf();
+    var endTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth() % 12 + 1, 1).valueOf() / 1000;
     // endTime open - startTime open
     fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/get-histories?region=US&lang=en&symbol=" + stockName + "&from=" + startTime + "&to=" + endTime + "&events=div&interval=1d", {
-	"method": "GET",
-	"headers": {
-		"x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
-		"x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
-	}
-})
-.then(response => {
-	console.log(response);
-})
-.catch(err => {
-	console.log(err);
-});
-    // update balance
-    this.setState({
-      balance: 1000,
-      stock: "",
+    	"method": "GET",
+    	"headers": {
+    		"x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
+    		"x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
+    	}
     })
+    .then(response => {
+    	console.log(response);
+      response.json().then(data => {
+        var open = data["chart"]["result"][0]["indicators"]["quote"][0]["open"];
+        var startPrice = open[0];
+        var endPrice = open[open.length - 1];
+        var update = this.state.balance + ((endPrice - startPrice) / startPrice * this.state.balance);
+        this.setState({
+          balance: Math.floor(update * 100) / 100,
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        alert("Invalid Stock Symbol");
+      });
+    })
+    .catch(err => {
+    	console.log(err);
+    });
+    // update balance
     this.restart();
-
   }
 
   render() {
