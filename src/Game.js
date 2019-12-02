@@ -49,6 +49,7 @@ export default class Game extends React.Component {
 
   // api call, update balance
   handleInput() {
+
     this.setState({
       balance: 1000,
       stock: "",
@@ -59,15 +60,29 @@ export default class Game extends React.Component {
 
   render() {
     return(
-      <div>
-        <h1>${this.state.balance}</h1>
-        <h1>{this.state.timer}</h1>
-        <h1>{this.state.date.toLocaleString('default', {month : 'long'})} {this.state.date.getFullYear()}</h1>
-        <input
-          placeholder="Stock Name"
-          onChange={(e) => this.handleChange(e)}
-          />
-        <button onClick={this.handleInput}>Submit</button>
+      <div className="ui three column grid">
+        <div className="column">
+          <div className="ui segment">
+            <h1>${this.state.balance}</h1>
+          </div>
+        </div>
+        <div className="two wide column">
+          <div className="ui segment">
+            <h1>{this.state.timer}</h1>
+          </div>
+        </div>
+        <div className="eight wide column">
+          <div className="ui segment">
+            <h1>{this.state.date.toLocaleString('default', {month : 'long'})} {this.state.date.getFullYear()}</h1>
+            <div className="ui action input">
+              <input
+                placeholder="Stock Name"
+                onChange={(e) => this.handleChange(e)}
+              />
+              <button className="ui button" onClick={this.handleInput}>Submit</button>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
