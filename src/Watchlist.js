@@ -7,13 +7,36 @@ import {emptyRow} from './Data.js'
 const tableHeader = ["Symbol", "Name", "Price", "Change", "% Change"]
 var page
 
+const tableStyle = {
+    'marginTop': '30px',
+    'marginLeft': '100px',
+    'marginRight': '100px',
+    'marginBottom': '30px'
+  };
+
 export default class Watchlist extends React.Component {
 
-    inputBox = <div class="ui transparent fluid input"><input onKeyPress={this.handleInput} type="text" placeholder="Add Ticker..."/></div>
-    inputRow = [this.inputBox, <button onClick = {this.clearStorage} class="ui basic blue fluid button">Clear List</button>, '', '', '']
-    loadingInputRow = [this.inputBox, <button onClick = {this.clearStorage} class="ui basic loading blue fluid button">Clear List</button>, '', '', '']
+    ceilingInput = 0
+    flootInput = 0
+    notificationTicker = ''
+    intervalID = 11214214
 
-    // data = new Data("Watchlist", tableHeader, [this.inputRow])
+    inputBox = <div class="ui transparent fluid input"><input onKeyPress={this.handleWatchlistTickerInput} type="text" placeholder="Add Ticker..."/></div>
+    inputRow = [this.inputBox, <button onClick = {this.clearStorage} class="ui basic blue fluid button">Clear List</button>, '', '', '']
+    loadingInputRow = [this.inputBox, <button class="ui basic loading blue fluid button">Clear List</button>, '', '', '']
+    notificationTickerInput = <div style={{tableStyle}} onKeyPress={function(e) {this.notificationTicker = e.target.value.toUpperCase()}.bind(this)}  class="ui input"><input type="text" placeholder="Add Notification Ticker..."/></div>
+    notificationCeilingInput = <div style={{tableStyle}} onKeyPress={function(e) {this.ceilingInput = e.target.value}.bind(this)} class="ui input"><input type="text" placeholder="Add Ceiling..."/></div>
+    notificationFloorInput = <div style={{tableStyle}} onKeyPress={function(e) {this.flootInput = e.target.value}.bind(this)} class="ui input"><input type="text" placeholder="Add Floor..."/></div>
+    submitNotification = <button onClick = {this.handleNotificationInput} class="ui basic button">Submit Notification</button>
+
+    notificationInput = 
+        <div styl={tableStyle}>
+            {this.notificationTickerInput}
+            {this.notificationCeilingInput}
+            {this.notificationFloorInput}
+            {this.notificationAmountInput}
+            {this.submitNotification}
+        </div>
 
     constructor(props) {
         super(props);        
@@ -23,9 +46,20 @@ export default class Watchlist extends React.Component {
         page = this
       }
 
-      componentDidMount() {
+    componentDidMount() {
+        if(!Notification.permission !== "granted") {
+            Notification.requestPermission()
+        }
         this.grabStockData()
-      }
+        this.intervalID = setInterval(
+            this.checkNotifications,
+            300000
+        )
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.intervalID);
+    }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevState.data !== this.state.data) {
@@ -35,11 +69,86 @@ export default class Watchlist extends React.Component {
         }
       }
 
+      checkNotifications() {
+          console.log(localStorage.getItem("notification"))
+        if(localStorage.getItem("notification")) {
+            let notifications = JSON.parse(localStorage.getItem("notification"))
+            for(let i = 0, len = notifications.length; i < len; i++) {
+                let notification = notifications[i]
+                let value = notification.symbol
+                fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/get-detail?region=US&lang=en&symbol=" + value, {
+                "method": "GET",
+                "headers": {
+                    "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
+                    "x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
+                    }
+                })
+                .then(response => {
+                    response.json().then(data => {
+                        console.log(data)
+                        let price = data["price"]["regularMarketPrice"]["fmt"]
+                        let name = data["price"]["shortName"]
+                        if(price >= notification.ceiling) {
+                            let alert = new Notification(name + " has gone over $" + notification.ceiling)
+                        }
+                        else if(price < notifications.min) {
+                            let alert = new Notification(name + " has gone under $" + notification.floor)
+                        }
+                    }
+                    ).catch(err => {
+                        console.log(err);
+                    });
+                }).catch(err => {
+                    console.log(err);
+                });  
+
+            }
+        }
+      }
+
+      handleNotificationInput() {
+        if(!Notification.permission !== "granted") {
+            Notification.requestPermission()
+        }
+        let value = page.notificationTicker
+        fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/get-detail?region=US&lang=en&symbol=" + value, {
+                "method": "GET",
+                "headers": {
+                    "x-rapidapi-host": "apidojo-yahoo-finance-v1.p.rapidapi.com",
+                    "x-rapidapi-key": "179a5f1cc4msh944e7e33a8ffef8p1c41eajsn6134a9507ef9"
+                    }
+                })
+                .then(response => {
+                    response.json().then(data => {
+                        console.log(data)
+                        let notification = new NotificationData(value, page.notificationCeilingInput.toString(2), page.notificationFloorInput.toString(2))
+                        if(!localStorage.getItem("notification")) {
+                            localStorage.setItem("notification", JSON.stringify([notification]))
+                        }
+                        else {
+                            let stored = localStorage.getItem("notification")
+                            var array = JSON.parse(stored)
+                            array.push(stored)
+                            localStorage.setItem("notification", JSON.stringify(array))
+                        }
+                        alert("Notification Added")
+                    }
+                    ).catch(err => {
+                        console.log(err);
+                        alert("Failed to Add Notification")
+                    });
+                }).catch(err => {
+                    console.log(err);
+                    alert("Failed to Add Notification")
+                });  
+                  
+      }
+
       grabStockData() {
         let symbols = localStorage.getItem("symbols")
         if (symbols) {
             let symbolArr = this.getSymbols(symbols)
-            this.setLoading()
+            this.setWatchlistLoading()
             fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-quotes?region=US&lang=en&symbols=" + symbols, {
                     "method": "GET",
                     "headers": {
@@ -91,11 +200,12 @@ export default class Watchlist extends React.Component {
                 {console.log("Watchlist Rendered")}
                 {console.log("Watchlist data", this.state.data)}
                 <Table data = {this.state.data}/>
+                {this.notificationInput}
             </>
           )
       }
 
-      setLoading() {
+      setWatchlistLoading() {
         var rows = page.state.data.rows
         rows.pop()
         rows.push(page.loadingInputRow)
@@ -104,7 +214,7 @@ export default class Watchlist extends React.Component {
         })
       }
 
-      handleInput(event) {
+      handleWatchlistTickerInput(event) {
         let key = event.key
         let value = event.target.value.toUpperCase()
         if (key === 'Enter') {
@@ -160,6 +270,15 @@ export default class Watchlist extends React.Component {
         }
       };
 
+      setLoading() {
+        var rows = page.state.data.rows
+        rows.pop()
+        rows.push(page.loadingInputRow)
+        page.setState({
+            tables: new Data("Watchlist", tableHeader, rows)
+        })
+      }
+
       clearStorage() {
         localStorage.setItem("symbols", "")
           page.setState({
@@ -169,6 +288,17 @@ export default class Watchlist extends React.Component {
 
 }
 
+class NotificationData {
+    constructor(symbol, ceiling, floor) {
+        this.symbol = symbol
+        this.ceiling = ceiling
+        this.floor = floor
+    }
+
+    toString() {
+        return JSON.stringify(this)
+    }
+}
 
 function roundToTwo(num) {
     return parseFloat(Math.round(num * 100) / 100).toFixed(2);
