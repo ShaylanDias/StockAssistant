@@ -1,4 +1,5 @@
 import React from 'react';
+import Chart from 'chart.js';
 
 export default class Game extends React.Component {
   constructor(props) {
@@ -6,12 +7,14 @@ export default class Game extends React.Component {
     this.countdown = this.countdown.bind(this);
     this.restart = this.restart.bind(this);
     this.handleInput = this.handleInput.bind(this);
+    this.initializeChart = this.initializeChart.bind(this);
     this.state = {
       timer: 20,
       date: this.getRandomDate(),
       interval: setInterval(this.countdown, 1000),
       stock: "",
       balance: 1000,
+      prices: [],
     }
   }
 
@@ -71,7 +74,11 @@ export default class Game extends React.Component {
         var update = this.state.balance + ((endPrice - startPrice) / startPrice * this.state.balance);
         this.setState({
           balance: Math.floor(update * 100) / 100,
+          prices: open
         });
+        this.initializeChart()
+        console.log('hi')
+        console.log(open)
       })
       .catch(err => {
         console.log(err);
@@ -83,6 +90,46 @@ export default class Game extends React.Component {
     });
     // update balance
     this.restart();
+  }
+
+  initializeChart() {
+        var ctx = document.getElementById('myChart');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                datasets: [{
+                    label: 'Price',
+                    data: this.state.prices,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
   }
 
   render() {
@@ -109,6 +156,8 @@ export default class Game extends React.Component {
               <button className="ui button" onClick={this.handleInput}>Submit</button>
             </div>
           </div>
+          <canvas id="myChart" width="400" height="400"></canvas>
+
         </div>
       </div>
     )
