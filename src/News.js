@@ -3,7 +3,8 @@ class News extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            arr: [],
+            title: [],
+            image: [],
         }
 
     }
@@ -18,17 +19,26 @@ class News extends React.Component {
             .then(response => {
                 console.log(response);
                 response.json().then(data => {
-                    let res = data["items"]["result"][0]["title"];
-                    const api = [];
+                    const titl = [];
+                    for (let i = 0; i < 10; i++){
+                        titl[i] = data["items"]["result"][i]["title"];
+                    }
+                    this.setState.title = titl;
 
+                    const img = [];
+                    for (let i = 0; i < 10; i++) {
+                        var check = data["items"]["result"][i]["main_image"];
+                        if (check == null) {
+                            img[i] = "https://uwosh.edu/facilities/wp-content/uploads/sites/105/2018/09/no-photo.png";
+                            alert(img[i]);
+                        } else {
+                            img[i] = check["original_url"];
+                            alert(img[i]);
+                        }
+                        this.setState.image = img;
+                    }
                 }
-                )
-                const api = [];
-                for (let i = 0; i < 10; i++){
-                    api[i] = res.items.result.i;
-                    alert(api[i]);
-                }
-                this.setState.arr = api;
+                );
             })
             .catch(err => {
                 console.log(err);
