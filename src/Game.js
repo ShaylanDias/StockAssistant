@@ -166,6 +166,8 @@ export default class Game extends React.Component {
               </div>
             </div>
           </div>
+          <canvas id="myChart" width="400" height="400"></canvas>
+
         </div>
         <br/>
         <div>
