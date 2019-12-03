@@ -7,7 +7,7 @@ import {emptyRow} from './Data.js'
 const tableHeader = ["Symbol", "Name", "Price", "Change", "% Change"]
 var page
 
-const tableStyle = {
+const notificationInputStyle = {
     'marginTop': '30px',
     'marginLeft': '100px',
     'marginRight': '100px',
@@ -24,13 +24,13 @@ export default class Watchlist extends React.Component {
     inputBox = <div class="ui transparent fluid input"><input onKeyPress={this.handleWatchlistTickerInput} type="text" placeholder="Add Ticker..."/></div>
     inputRow = [this.inputBox, <button onClick = {this.clearStorage} class="ui basic blue fluid button">Clear List</button>, '', '', '']
     loadingInputRow = [this.inputBox, <button class="ui basic loading blue fluid button">Clear List</button>, '', '', '']
-    notificationTickerInput = <div style={{tableStyle}} onKeyPress={function(e) {this.notificationTicker = e.target.value.toUpperCase()}.bind(this)}  class="ui input"><input type="text" placeholder="Add Notification Ticker..."/></div>
-    notificationCeilingInput = <div style={{tableStyle}} onKeyPress={function(e) {this.ceilingInput = e.target.value}.bind(this)} class="ui input"><input type="text" placeholder="Add Ceiling..."/></div>
-    notificationFloorInput = <div style={{tableStyle}} onKeyPress={function(e) {this.flootInput = e.target.value}.bind(this)} class="ui input"><input type="text" placeholder="Add Floor..."/></div>
+    notificationTickerInput = <div onKeyPress={function(e) {this.notificationTicker = e.target.value.toUpperCase()}.bind(this)}  class="ui input"><input type="text" placeholder="Add Notification Ticker..."/></div>
+    notificationCeilingInput = <div onKeyPress={function(e) {this.ceilingInput = e.target.value}.bind(this)} class="ui input"><input type="text" placeholder="Add Ceiling..."/></div>
+    notificationFloorInput = <div onKeyPress={function(e) {this.flootInput = e.target.value}.bind(this)} class="ui input"><input type="text" placeholder="Add Floor..."/></div>
     submitNotification = <button onClick = {this.handleNotificationInput} class="ui basic button">Submit Notification</button>
 
     notificationInput = 
-        <div styl={tableStyle}>
+        <div style={notificationInputStyle}>
             {this.notificationTickerInput}
             {this.notificationCeilingInput}
             {this.notificationFloorInput}
@@ -131,15 +131,15 @@ export default class Watchlist extends React.Component {
                             array.push(stored)
                             localStorage.setItem("notification", JSON.stringify(array))
                         }
-                        alert("Notification Added")
+                        alert("Notification Added.")
                     }
                     ).catch(err => {
                         console.log(err);
-                        alert("Failed to Add Notification")
+                        new Notification("Failed to Add Notification")
                     });
                 }).catch(err => {
                     console.log(err);
-                    alert("Failed to Add Notification")
+                    new Notification("Failed to Add Notification: Incorrect Symbol")
                 });  
                   
       }
