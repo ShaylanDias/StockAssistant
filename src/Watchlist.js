@@ -11,6 +11,8 @@ export default class Watchlist extends React.Component {
 
     inputBox = <div class="ui transparent fluid input"><input onKeyPress={this.handleInput} type="text" placeholder="Add Ticker..."/></div>
     inputRow = [this.inputBox, <button onClick = {this.clearStorage} class="ui basic blue fluid button">Clear List</button>, '', '', '']
+    loadingInputRow = [this.inputBox, <button onClick = {this.clearStorage} class="ui basic loading blue fluid button">Clear List</button>, '', '', '']
+
     // data = new Data("Watchlist", tableHeader, [this.inputRow])
 
     constructor(props) {
@@ -37,6 +39,7 @@ export default class Watchlist extends React.Component {
         let symbols = localStorage.getItem("symbols")
         if (symbols) {
             let symbolArr = this.getSymbols(symbols)
+            this.setLoading()
             fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/market/get-quotes?region=US&lang=en&symbols=" + symbols, {
                     "method": "GET",
                     "headers": {
@@ -92,12 +95,22 @@ export default class Watchlist extends React.Component {
           )
       }
 
+      setLoading() {
+        var rows = page.state.data.rows
+        rows.pop()
+        rows.push(page.loadingInputRow)
+        page.setState({
+            tables: new Data("Watchlist", tableHeader, rows)
+        })
+      }
+
       handleInput(event) {
         let key = event.key
         let value = event.target.value.toUpperCase()
         if (key === 'Enter') {
             console.log(key, value)
             if(!getSymbols(localStorage.getItem("symbols")).includes(value)) {
+                page.setLoading()
                 fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/get-detail?region=US&lang=en&symbol=" + value, {
                 "method": "GET",
                 "headers": {
