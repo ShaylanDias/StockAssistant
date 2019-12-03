@@ -17,8 +17,11 @@ class News extends React.Component {
         })
             .then(response => {
                 console.log(response);
-                var res = response.json().then(data =>
-                alert(data)
+                response.json().then(data => {
+                    let res = data["items"]["result"][0]["title"];
+                    const api = [];
+
+                }
                 )
                 const api = [];
                 for (let i = 0; i < 10; i++){
