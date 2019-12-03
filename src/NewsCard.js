@@ -7,11 +7,17 @@ class NewsCard extends React.Component{
 
     render(){
         return (
-            <div>
-                <img className="ui fluid image" src={this.props.card.imageURL}></img>
-                <div className="ui sizer vertical segment">
-                    <div className="ui huge header">{this.props.card.heading}</div>
+            <div className="fixedH">
+            <a href={this.props.link} target="_blank">
+            <div class= "ui card">
+                <div class="image">
+                <img src={this.props.imageURL}></img>
                 </div>
+                <div class="content">
+                    <a class="header">{this.props.heading}</a>
+                </div>
+            </div>
+            </a>
             </div>
         );
     }
