@@ -19,6 +19,7 @@ export default class Game extends React.Component {
       startPrice: 0,
       endPrice: 0,
       prices: [],
+      days: [],
     }
   }
 
@@ -85,6 +86,7 @@ export default class Game extends React.Component {
           startPrice: Math.floor(start * 100) / 100,
           endPrice: Math.floor(end * 100) / 100,
           prices: open,
+          days: Array.from(Array(open.length-1), (e,i)=>i+1)
         });
         this.initializeChart();
       })
@@ -105,7 +107,7 @@ export default class Game extends React.Component {
         var myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+                labels: this.state.days,
                 datasets: [{
                     label: 'Price',
                     data: this.state.prices,
@@ -132,7 +134,7 @@ export default class Game extends React.Component {
                 scales: {
                     yAxes: [{
                         ticks: {
-                            beginAtZero: true
+                            beginAtZero: false
                         }
                     }]
                 }
