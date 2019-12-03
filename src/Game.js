@@ -12,6 +12,10 @@ export default class Game extends React.Component {
       interval: setInterval(this.countdown, 1000),
       stock: "",
       balance: 1000,
+      displayStock: "",
+      displayDate: undefined,
+      startPrice: 0,
+      endPrice: 0
     }
   }
 
@@ -51,9 +55,11 @@ export default class Game extends React.Component {
   handleInput() {
     var stockName = this.state.stock.toUpperCase();
     // beginning of the month
-    var startTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth(), 1).valueOf() / 1000;
+    var year = this.state.date.getFullYear();
+    var month = this.state.date.getMonth();
+    var startTime = new Date(year, month, 1).valueOf() / 1000;
     // beginning of the next month
-    var endTime = new Date(this.state.date.getFullYear(), this.state.date.getMonth() % 12 + 1, 1).valueOf() / 1000;
+    var endTime = new Date(year, month % 12 + 1, 1).valueOf() / 1000;
     // endTime open - startTime open
     fetch("https://apidojo-yahoo-finance-v1.p.rapidapi.com/stock/get-histories?region=US&lang=en&symbol=" + stockName + "&from=" + startTime + "&to=" + endTime + "&events=div&interval=1d", {
     	"method": "GET",
@@ -66,11 +72,15 @@ export default class Game extends React.Component {
     	console.log(response);
       response.json().then(data => {
         var open = data["chart"]["result"][0]["indicators"]["quote"][0]["open"];
-        var startPrice = open[0];
-        var endPrice = open[open.length - 1];
-        var update = this.state.balance + ((endPrice - startPrice) / startPrice * this.state.balance);
+        var start = open[0];
+        var end = open[open.length - 1];
+        var update = this.state.balance + ((end - start) / start * this.state.balance);
         this.setState({
           balance: Math.floor(update * 100) / 100,
+          displayStock: stockName,
+          displayDate: new Date(year, month, 1),
+          startPrice: Math.floor(start * 100) / 100,
+          endPrice: Math.floor(end * 100) / 100
         });
       })
       .catch(err => {
@@ -87,28 +97,67 @@ export default class Game extends React.Component {
 
   render() {
     return(
-      <div className="ui three column grid">
-        <div className="column">
-          <div className="ui segment">
-            <h1>${this.state.balance}</h1>
-          </div>
-        </div>
-        <div className="two wide column">
-          <div className="ui segment">
-            <h1>{this.state.timer}</h1>
-          </div>
-        </div>
-        <div className="eight wide column">
-          <div className="ui segment">
-            <h1>{this.state.date.toLocaleString('default', {month : 'long'})} {this.state.date.getFullYear()}</h1>
-            <div className="ui action input">
-              <input
-                placeholder="Stock Name"
-                onChange={(e) => this.handleChange(e)}
-              />
-              <button className="ui button" onClick={this.handleInput}>Submit</button>
+      <div>
+        <div className="ui three column grid">
+          <div className="column">
+            <div className="ui segment">
+              <h1>${this.state.balance}</h1>
             </div>
           </div>
+          <div className="two wide column">
+            <div className="ui segment">
+              <h1>{this.state.timer}</h1>
+            </div>
+          </div>
+          <div className="eight wide column">
+            <div className="ui segment">
+              <h1>{this.state.date.toLocaleString('default', {month : 'long'})} {this.state.date.getFullYear()}</h1>
+              <div className="ui action input">
+                <input
+                  placeholder="Stock Name"
+                  onChange={(e) => this.handleChange(e)}
+                />
+                <button className="ui button" onClick={this.handleInput}>Submit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <div>
+          {this.state.displayDate ? (
+            <div className="ui centered raised teal card">
+              <div className="content">
+                <div className="header">
+                  <h1>{this.state.displayStock}</h1>
+                </div>
+                <div className="meta">
+                  <h4>{this.state.displayDate.toLocaleString('default', {month : 'long'})} {this.state.displayDate.getFullYear()}</h4>
+                </div>
+                <div className="description">
+                  <div className="ui two tiny teal statistics">
+                    <div className="statistic">
+                      <div className="value">
+                        ${this.state.startPrice}
+                      </div>
+                      <div className="label">
+                        Start Price
+                      </div>
+                    </div>
+                    <div className="statistic">
+                      <div className="value">
+                        ${this.state.endPrice}
+                      </div>
+                      <div className="label">
+                        End Price
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div></div>
+          )}
         </div>
       </div>
     )
