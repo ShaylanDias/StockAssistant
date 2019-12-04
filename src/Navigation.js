@@ -10,20 +10,20 @@ export default class Navigation extends React.Component {
     return(
       <div>
           <div class="ui menu">
-            <a class="active item" href = "">
-              Home
-            </a>
-            <a class="item" href = "/Game">
+            <a class="active item" href = "/">
               Game
             </a>
-            <a class="item" href = "">
+            <a class="item" href = "/Movers">
+              Movers
+            </a>
+            <a class="item" href = "/Watchlist">
               Watchlist
             </a>
             <a class="item" href = "/News">
               News
             </a>
         </div>
-        
+
       </div>
     );
   }

@@ -9,9 +9,9 @@ export default function Main() {
   return(
     <Switch>
       <Route exact path='/' component={Game}></Route>
-      <Route path='/tables' component={TablePage}></Route>
-      <Route path='/news' component={News}></Route>
-      <Route path='/watchlist' component={Watchlist}></Route>
+      <Route path='/Movers' component={TablePage}></Route>
+      <Route path='/News' component={News}></Route>
+      <Route path='/Watchlist' component={Watchlist}></Route>
     </Switch>
   )
 }
